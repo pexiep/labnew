@@ -1,5 +1,5 @@
 # quick_lab
-### Step 1: Thay thế giá trị trong file terrafrom.tfvars
+### Step 1: Thay thế giá trị trong file *terrafrom.tfvars*
 ```
 access_key = "Paste your Access Key ID here"
 secret_key = "Paste your Secret Access Key here"
