@@ -9,7 +9,7 @@ secret_key = "Paste your Secret Access Key here"
 cd ~./quick_lab
 terraform init
 terraform fmt
-terraform valicate
+terraform validate
 ```
 ### Step 3: Chạy lần lượt các lệnh
 ```
