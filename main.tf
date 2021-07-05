@@ -129,15 +129,16 @@ resource "aws_route_table_association" "private_rta" {
 
 }
 
-resource "aws_instance" "remote_gateway" {
+resource "aws_instance" "ssh_gateway" {
 
   ami                    = "ami-0ab4d1e9cf9a1215a"
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.allow_all.id]
+  key_name               = var.key_name
 
   tags = {
-    Name = "Remote Gateway"
+    Name = "SSH Gateway"
   }
 }
 
@@ -146,6 +147,8 @@ resource "aws_instance" "protected_server" {
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.private.id
   vpc_security_group_ids = [aws_security_group.allow_all.id]
+  key_name               = var.key_name
+
 
   tags = {
     Name = "Protected Server"
