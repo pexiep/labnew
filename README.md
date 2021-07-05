@@ -1,23 +1,34 @@
-# quick_lab
-### Step 1: Thay thế giá trị trong file *terrafrom.tfvars*
+# Xây dựng nhanh một môi trường AWS đơn giản bằng Terraform
+
+## Mô hình
+
+![simple_infras](https://github.com/hieuldt/quick_lab/blob/main/simple_infras.png)
+
+## Hướng dẫn
+
+Trước khi bắt đầu sử dụng; hãy chắc chắn bạn đã truy cập vào trang Console của AWS và tạo một Key Pair
+https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#KeyPairs:
+
+Hay đổi nội dung trong file *terraform.tfvars* sao cho phù hợp với thông tin của bạn
 ```
 access_key = "Paste your Access Key ID here"
 secret_key = "Paste your Secret Access Key here"
+key_name   = "Paste your Key Pair Name here"
 ```
-### Step 2: Chạy lần lượt các lệnh
+
+Sau khi thiết lập xong thì chạy lệnh để Terraform bắt đầu khởi tạo môi trường
 ```
-cd ~./quick_lab
 terraform init
-terraform fmt
-terraform validate
-```
-### Step 3: Chạy lần lượt các lệnh
-```
-terraform plan
 terraform apply
 ```
-### Step 4: Login vào Playgroud để xem kết quả
-### Step 5: Chạy lệnh
+
+Add ssh key vào máy bằng lệnh
 ```
-terraform destroy
+ssh-add -K <Key Pair Name>
+ssh-add -L <Key Pair Name>
 ```
+
+Thực hiện truy cập bằng
+```
+ssh -A ec2-user@<public IP của SSH Gateway>
+ssh ec2-user@<private IP của Protected Server>
