@@ -33,12 +33,6 @@ variable "public_subnet_cidr_blocks" {
   description = "List of public subnet CIDR blocks"
 }
 
-variable "instances_per_subnet" {
-  description = "Number of EC2 instances in each public subnet"
-  type        = number
-  default     = 2
-}
-
 variable "availability_zones" {
   default     = ["eu-west-3a", "eu-west-3b"]
   type        = list
