@@ -26,13 +26,13 @@ variable "cidr_block" {
 }
 
 variable "public_subnet_cidr_blocks" {
-  default     = ["10.0.0.0/24", "10.0.2.0/24"]
+  default     = "10.0.0.0/24"
   type        = list
   description = "List of public subnet CIDR blocks"
 }
 
 variable "availability_zones" {
-  default     = ["eu-west-3a", "eu-west-3b"]
+  default     = "eu-west-3a"
   type        = list
   description = "List of availability zones"
 }
