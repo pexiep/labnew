@@ -83,13 +83,15 @@ resource "aws_network_interface" "web-server-nic" {
 }
 
 resource "aws_eip" "one" {
-  count = length(var.public_subnet_cidr_blocks)
-  vpc = true
+  vpc                       = true
+  network_interface         = aws_network_interface.web-server-nic.id
+  associate_with_private_ip = "10.0.1.50"
 }
 
 #Create EC2
 
 resource "aws_instance" "web-server-instance" {
+    count = 4
     ami = "ami-09e67e426f25ce0d7"
     instance_type = "t2.micro"
     availability_zone = "us-east-1a"
@@ -108,6 +110,6 @@ resource "aws_instance" "web-server-instance" {
                 sudo bash -c 'echo Hello from THE ANH > /var/www/html/index.html'
                 EOF
     tags = {
-      Name = "web-server"
+   	 Name = "Server ${count.index}"
     }
 }
