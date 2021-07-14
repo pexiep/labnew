@@ -15,10 +15,10 @@ variable "region" {
   description = "Region of the VPC"
 }
 
-variable "key-name" {
-  default     = "eu-west-3"
+variable "key_name" {
   type        = string
-  description = "Region of the VPC"
+  description = "Key Pairs."
+  sensitive   = true
 }
 
 variable "cidr_block" {
