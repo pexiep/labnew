@@ -8,7 +8,6 @@ variable "secret_key" {
 }
 
 variable "region" {
-  default     = "eu-west-3"
   type        = string
   description = "Region of the VPC"
 }
@@ -20,7 +19,6 @@ variable "key_name" {
 }
 
 variable "cidr_block" {
-  default     = "10.0.0.0/16"
   type        = string
   description = "CIDR block for the VPC"
 }
