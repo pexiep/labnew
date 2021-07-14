@@ -17,7 +17,7 @@ resource "aws_vpc" "vpc" {
 }
 
 resource "aws_internet_gateway" "gateway" {
-  vpc_id = aws_vpc.default.id
+  vpc_id = aws_vpc.vpc.id
   
     tags = {
     Name = "iGW"
@@ -25,19 +25,19 @@ resource "aws_internet_gateway" "gateway" {
 }
 
 resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.default.id
+  vpc_id = aws_vpc.vpc.id
 }
 
 resource "aws_route" "public" {
   route_table_id         = aws_route_table.public.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.default.id
+  gateway_id             = aws_internet_gateway.gateway.id
 }
 
 resource "aws_subnet" "public" {
   count = length(var.public_subnet_cidr_blocks)
 
-  vpc_id                  = aws_vpc.default.id
+  vpc_id                  = aws_vpc.vpc.id
   cidr_block              = var.public_subnet_cidr_blocks[count.index]
   availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
@@ -55,7 +55,7 @@ resource "aws_route_table_association" "public" {
 resource "aws_security_group" "allow_web" {
      name        = "http-https-allow"
      description = "Allow incoming HTTP and HTTPS and Connections"
-     vpc_id      = "${aws_vpc.default.id}"
+     vpc_id      = "${aws_vpc.vpc.id}"
      ingress {
          from_port = 80
          to_port = 80
@@ -89,49 +89,25 @@ resource "aws_eip" "one" {
 
 #Create EC2
 
-data "aws_ami" "amazon-linux-2" {
- most_recent = true
-
-
- filter {
-   name   = "owner-alias"
-   values = ["amazon"]
- }
-
-
- filter {
-   name   = "name"
-   values = ["amzn2-ami-hvm*"]
- }
-}
-
-resource "aws_instance" "test" {
-	depends_on = ["aws_internet_gateway.test"]
-	count = var.instances_per_subnet * length(module.vpc.public_subnets)
-	
-	
-	ami                         = "${data.aws_ami.amazon-linux-2.id}"
-	associate_public_ip_address = true
-	iam_instance_profile        = "${aws_iam_instance_profile.test.id}"
-	instance_type               = "t2.micro"
-	vpc_security_group_ids      = ["${aws_security_group.allow_web.id}"]
-	subnet_id                   = "${aws_vpc.default.id[count.index % length(module.vpc.public_subnets)]}"
-	key_name = var.key_name
+resource "aws_instance" "web-server-instance" {
+    ami = "ami-09e67e426f25ce0d7"
+    instance_type = "t2.micro"
+    availability_zone = "us-east-1a"
+    key_name = var.key_name
 
     network_interface {
       device_index = 0
       network_interface_id = aws_network_interface.web-server-nic.id
     }
-	
-	user_data = <<-EOF
-		#!/bin/bash
-		sudo su
-		yum -y install httpd
-		echo "<p> My Instance! </p>" >> /var/www/html/index.html
-		sudo systemctl enable httpd
-		sudo systemctl start httpd
-		EOF
-	tags = {
+
+    user_data = <<-EOF
+                #!bin/bash
+                sudo apt update -y
+                sudo apt install apache2 -y
+                sudo systemctl start apache2
+                sudo bash -c 'echo Hello from THE ANH > /var/www/html/index.html'
+                EOF
+    tags = {
       Name = "web-server"
     }
 }
