@@ -1,156 +1,137 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.27"
-    }
-  }
-
-  required_version = ">= 0.14.9"
-}
-
 provider "aws" {
-  profile    = "default"
-  region     = "us-east-1"
-  access_key = var.access_key
-  secret_key = var.secret_key
+	  profile    = "default"
+      region     = "${var.region}"
+      access_key = "${var.access_key}"
+      secret_key = "${var.secret_key}"
 }
 
-resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
 
+# VPC resources: This will create 1 VPC with 2 Subnets, 1 Internet Gateway, 2 Route Tables. 
+
+resource "aws_vpc" "vpc" {
+  cidr_block           = var.cidr_block
+  
   tags = {
-    Name = "Main"
+    Name = "vpc"
   }
 }
 
-resource "aws_eip" "eib" {
-  vpc = true
-}
-
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.main.id
-
-  tags = {
-    Name = "IGW"
+resource "aws_internet_gateway" "gateway" {
+  vpc_id = aws_vpc.default.id
+  
+    tags = {
+    Name = "iGW"
   }
 }
 
-resource "aws_nat_gateway" "nat_gateway" {
-  allocation_id = aws_eip.eib.id
-  subnet_id     = aws_subnet.public.id
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.default.id
+}
 
-  tags = {
-    Name = "NAT"
-  }
-
-  # To ensure proper ordering, it is recommended to add an explicit dependency
-  # on the Internet Gateway for the VPC.
-  depends_on = [aws_internet_gateway.igw]
+resource "aws_route" "public" {
+  route_table_id         = aws_route_table.public.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.default.id
 }
 
 resource "aws_subnet" "public" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.0.0/24"
+  count = length(var.public_subnet_cidr_blocks)
+
+  vpc_id                  = aws_vpc.default.id
+  cidr_block              = var.public_subnet_cidr_blocks[count.index]
+  availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
-
-  tags = {
-    Name = "Public"
-  }
 }
 
-resource "aws_subnet" "private" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.1.0/24"
+resource "aws_route_table_association" "public" {
+  count = length(var.public_subnet_cidr_blocks)
 
-  tags = {
-    Name = "Private"
-  }
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public.id
 }
 
-resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.main.id
+#Create Security Group
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
-
-  tags = {
-    Name = "public_rt"
-  }
+resource "aws_security_group" "allow_web" {
+     name        = "http-https-allow"
+     description = "Allow incoming HTTP and HTTPS and Connections"
+     vpc_id      = "${aws_vpc.default.id}"
+     ingress {
+         from_port = 80
+         to_port = 80
+         protocol = "tcp"
+         cidr_blocks = ["0.0.0.0/0"]
+    }
+     ingress {
+         from_port = 443
+         to_port = 443
+         protocol = "tcp"
+         cidr_blocks = ["0.0.0.0/0"]
+    }
+	ingress {
+         from_port = 22
+         to_port = 22
+         protocol = "tcp"
+         cidr_blocks = ["0.0.0.0/0"]
+    }
 }
 
-resource "aws_route_table" "private_rt" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.nat_gateway.id
-  }
-
-  tags = {
-    Name = "private_rt"
-  }
+resource "aws_network_interface" "web-server-nic" {
+  subnet_id       = aws_vpc.default.id
+  private_ips     = ["10.0.1.50"]
+  security_groups = [aws_security_group.allow_web.id]
 }
 
-resource "aws_security_group" "allow_all" {
-  name        = "allow_all"
-  description = "Allow all traffic"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "allow_all"
-  }
+resource "aws_eip" "one" {
+  count = length(var.public_subnet_cidr_blocks)
+  vpc = true
 }
 
-resource "aws_route_table_association" "public_rta" {
-  subnet_id      = aws_subnet.public.id
-  route_table_id = aws_route_table.public_rt.id
+#Create EC2
+
+data "aws_ami" "amazon-linux-2" {
+ most_recent = true
+
+
+ filter {
+   name   = "owner-alias"
+   values = ["amazon"]
+ }
+
+
+ filter {
+   name   = "name"
+   values = ["amzn2-ami-hvm*"]
+ }
 }
 
-resource "aws_route_table_association" "private_rta" {
-  subnet_id      = aws_subnet.private.id
-  route_table_id = aws_route_table.private_rt.id
+resource "aws_instance" "test" {
+	depends_on = ["aws_internet_gateway.test"]
+	count = var.instances_per_subnet * length(module.vpc.public_subnets)
+	
+	
+	ami                         = "${data.aws_ami.amazon-linux-2.id}"
+	associate_public_ip_address = true
+	iam_instance_profile        = "${aws_iam_instance_profile.test.id}"
+	instance_type               = "t2.micro"
+	vpc_security_group_ids      = ["${aws_security_group.allow_web.id}"]
+	subnet_id                   = "${aws_vpc.default.id[count.index % length(module.vpc.public_subnets)]}"
+	key_name = var.key_name
 
-}
-
-resource "aws_instance" "ssh_gateway" {
-
-  ami                    = "ami-0ab4d1e9cf9a1215a"
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public.id
-  vpc_security_group_ids = [aws_security_group.allow_all.id]
-  key_name               = var.key_name
-
-  tags = {
-    Name = "SSH Gateway"
-  }
-}
-
-resource "aws_instance" "protected_server" {
-  ami                    = "ami-0ab4d1e9cf9a1215a"
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.private.id
-  vpc_security_group_ids = [aws_security_group.allow_all.id]
-  key_name               = var.key_name
-
-
-  tags = {
-    Name = "Protected Server"
-  }
+    network_interface {
+      device_index = 0
+      network_interface_id = aws_network_interface.web-server-nic.id
+    }
+	
+	user_data = <<-EOF
+		#!/bin/bash
+		sudo su
+		yum -y install httpd
+		echo "<p> My Instance! </p>" >> /var/www/html/index.html
+		sudo systemctl enable httpd
+		sudo systemctl start httpd
+		EOF
+	tags = {
+      Name = "web-server"
+    }
 }
