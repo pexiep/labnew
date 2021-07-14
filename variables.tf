@@ -13,9 +13,10 @@ variable "region" {
   description = "Region of the VPC"
 }
 
-variable "key-name" {
+variable "key_name" {
   type        = string
-  description = "key"
+  description = "Key Pairs."
+  sensitive   = true
 }
 
 variable "cidr_block" {
