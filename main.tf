@@ -10,12 +10,11 @@ terraform {
 }
 
 provider "aws" {
-	  profile    = "default"
-      region     = "${var.region}"
-      access_key = "${var.access_key}"
-      secret_key = "${var.secret_key}"
+  profile    = "default"
+  region     = "us-east-1"
+  access_key = var.access_key
+  secret_key = var.secret_key
 }
-
 
 # VPC resources: This will create 1 VPC with 2 Subnets, 1 Internet Gateway, 2 Route Tables. 
 
