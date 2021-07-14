@@ -1,10 +1,12 @@
 variable "access_key" {
-     description = "Access key to AWS console"
-   
+  type        = string
+  description = "Access Key ID."
+  sensitive   = true
 }
 variable "secret_key" {
-     description = "Secret key to AWS console"
-     
+  type        = string
+  description = "Secret Access Key."
+  sensitive   = true
 }
 
 variable "region" {
