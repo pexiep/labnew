@@ -16,57 +16,85 @@ provider "aws" {
   secret_key = var.secret_key
 }
 
-# VPC resources: This will create 1 VPC with 2 Subnets, 1 Internet Gateway, 2 Route Tables. 
+#1 - Create VPC
 
-resource "aws_vpc" "vpc" {
-  cidr_block           = var.cidr_block
-  
+resource "aws_vpc" "main" {
+  cidr_block       = "10.0.0.0/16"
+  instance_tenancy = "default"
+
   tags = {
-    Name = "vpc"
+    Name = "VPC"
   }
 }
 
-resource "aws_internet_gateway" "gateway" {
-  vpc_id = aws_vpc.vpc.id
-  
-    tags = {
-    Name = "iGW"
+#2- Create Internet Gateway
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "gw"
   }
 }
+
+#3 - Create Route Table
 
 resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.vpc.id
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "10.0.1.0/24"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+	
+  tags = {
+    Name = "PublicRT"
+  }
 }
 
-resource "aws_route" "public" {
-  route_table_id         = aws_route_table.public.id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.gateway.id
-}
+#4 - Create 2 subnets at 2 seperate AZs (enable auto assign IPv4)
 
-resource "aws_subnet" "public" {
-  count = length(var.public_subnet_cidr_blocks)
-
-  vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = var.public_subnet_cidr_blocks[count.index]
-  availability_zone       = var.availability_zones[count.index]
+resource "aws_subnet" "main1" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.1.0/24"
+  availability_zone = "us-east-1"
   map_public_ip_on_launch = true
+
+  tags = {
+    Name = "PublicSubnet1"
+  }
 }
 
-resource "aws_route_table_association" "public" {
-  count = length(var.public_subnet_cidr_blocks)
+resource "aws_subnet" "main2" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.2.0/24"
+  availability_zone = "us-west-2"
+  map_public_ip_on_launch = true
 
-  subnet_id      = aws_subnet.public[count.index].id
+  tags = {
+    Name = "PublicSubnet2"
+  }
+}
+
+#5 - Assign Route Table into subnets  (Edit route table association)
+
+resource "aws_route_table_association" "a" {
+  subnet_id      = aws_subnet.main1.id
   route_table_id = aws_route_table.public.id
 }
 
-#Create Security Group
+resource "aws_route_table_association" "b" {
+  subnet_id      = aws_subnet.main2.id
+  route_table_id = aws_route_table.public.id
+}
+
+#6 - Create Security Groups
 
 resource "aws_security_group" "allow_web" {
-     name        = "http-https-allow"
-     description = "Allow incoming HTTP and HTTPS and Connections"
-     vpc_id      = "${aws_vpc.vpc.id}"
-     ingress {
+  name        = "allow_web"
+  description = "Allow web traffic"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
          from_port = 80
          to_port = 80
          protocol = "tcp"
@@ -84,21 +112,26 @@ resource "aws_security_group" "allow_web" {
          protocol = "tcp"
          cidr_blocks = ["0.0.0.0/0"]
     }
+
+  tags = {
+    Name = "allow_web"
+  }
 }
 
+#6.1 Create Network interface NIC and EIP
+
 resource "aws_network_interface" "web-server-nic" {
-  subnet_id       = aws_vpc.vpc.id
-  private_ips     = ["10.0.1.50"]
+  subnet_id       = aws_subnet.main1.id
+  private_ips     = ["10.0.0.50"]
   security_groups = [aws_security_group.allow_web.id]
 }
 
 resource "aws_eip" "one" {
-  vpc                       = true
-  network_interface         = aws_network_interface.web-server-nic.id
-  associate_with_private_ip = "10.0.1.50"
+  count = length(var.public_subnet_cidr_blocks)
+  vpc = true
 }
 
-#Create EC2
+#7 - Create EC2
 
 resource "aws_instance" "web-server-instance" {
     count = 4
@@ -123,3 +156,8 @@ resource "aws_instance" "web-server-instance" {
    	 Name = "Server ${count.index}"
     }
 }
+
+#9 - Create Elastic LoadBalance
+
+
+
