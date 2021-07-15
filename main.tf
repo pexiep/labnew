@@ -133,7 +133,6 @@ resource "aws_eip" "one" {
 #7 - Create EC2
 
 resource "aws_instance" "web-server-instance" {
-    count = 4
     ami = "ami-09e67e426f25ce0d7"
     instance_type = "t2.micro"
     availability_zone = "us-east-1a"
