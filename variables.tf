@@ -7,7 +7,5 @@ variable "secret_key" {
 }
 
 variable "key_name" {
-  type        = string
   description = "Key Pairs."
-  sensitive   = true
 }
