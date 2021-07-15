@@ -11,5 +11,3 @@ variable "key_name" {
   description = "Key Pairs."
   sensitive   = true
 }
-
-
