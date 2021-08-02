@@ -134,12 +134,33 @@ resource "aws_subnet" "dbsubnet3prod" {
   }
 }
 
-#5 Create NAT Gateway
+#5 Create association
 
-resource "aws_nat_gateway" "example1" {
-  subnet_id     = "10.2.1.0/24"
+resource "aws_route_table_association" "a1" { 
+  subnet_id      = aws_subnet.publicsubnet1prod.id 
+  route_table_id = aws_route_table.publicprod.id 
+} 
 
-  tags = {
-    Name = "gw NAT"
-  }
-}
+
+resource "aws_route_table_association" "b1" { 
+  subnet_id      = aws_subnet.publicsubnet2prod.id 
+  route_table_id = aws_route_table.publicprod.id 
+} 
+
+
+resource "aws_route_table_association" "c1" { 
+  subnet_id      = aws_subnet.publicsubnet3prod.id 
+  route_table_id = aws_route_table.publicprod.id 
+} 
+
+#6 Create NAT Gateway
+
+resource "aws_eip" "nat1" { 
+  vpc      = true 
+} 
+ 
+resource "aws_nat_gateway" "ngw1" { 
+  allocation_id = aws_eip.nat1.id 
+  subnet_id = aws_subnet.publicsubnet2prod.id 
+} 
+ 
