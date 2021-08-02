@@ -1,0 +1,144 @@
+#1 - Create VPC
+
+resource "aws_vpc" "prod" {
+  cidr_block       = "10.2.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "prodVPC"
+  }
+}
+
+#2- Create Internet Gateway
+resource "aws_internet_gateway" "gw1" {
+  vpc_id = aws_vpc.prod.id
+
+  tags = {
+    Name = "gw"
+  }
+}
+
+#3 - Create Route Table
+
+resource "aws_route_table" "publicprod" {
+  vpc_id = aws_vpc.prod.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw1.id
+  }
+	
+  tags = {
+    Name = "PublicRT"
+  }
+}
+
+#4 - Create 9 subnets at 3 seperate AZs (enable auto assign IPv4)
+
+resource "aws_subnet" "publicsubnet1prod" {
+  vpc_id     = aws_vpc.prod.id
+  cidr_block = "10.2.0.0/24"
+  availability_zone = "us-east-1a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "PublicSubnet1prod"
+  }
+}
+
+resource "aws_subnet" "privatesubnet1prod" {
+  vpc_id     = aws_vpc.prod.id
+  cidr_block = "10.2.10.0/24"
+  availability_zone = "us-east-1a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "PrivateSubnet1prod"
+  }
+}
+
+resource "aws_subnet" "dbsubnet1prod" {
+  vpc_id     = aws_vpc.prod.id
+  cidr_block = "10.2.100.0/24"
+  availability_zone = "us-east-1a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "DBSubnet1prod"
+  }
+}
+
+resource "aws_subnet" "publicsubnet2prod" {
+  vpc_id     = aws_vpc.prod.id
+  cidr_block = "10.2.1.0/24"
+  availability_zone = "us-east-1b"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "PublicSubnet2prod"
+  }
+}
+
+resource "aws_subnet" "privatesubnet2prod" {
+  vpc_id     = aws_vpc.prod.id
+  cidr_block = "10.2.11.0/24"
+  availability_zone = "us-east-1b"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "privatesubnet2prod"
+  }
+}
+
+resource "aws_subnet" "dbsubnet2prod" {
+  vpc_id     = aws_vpc.prod.id
+  cidr_block = "10.2.110.0/24"
+  availability_zone = "us-east-1b"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "dbsubnet2prod"
+  }
+}
+
+resource "aws_subnet" "publicsubnet3prod" {
+  vpc_id     = aws_vpc.prod.id
+  cidr_block = "10.2.2.0/24"
+  availability_zone = "us-east-1c"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "PublicSubnet3prod"
+  }
+}
+
+resource "aws_subnet" "privatesubnet3prod" {
+  vpc_id     = aws_vpc.prod.id
+  cidr_block = "10.2.22.0/24"
+  availability_zone = "us-east-1c"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "privatesubnet3prod"
+  }
+}
+
+resource "aws_subnet" "dbsubnet3prod" {
+  vpc_id     = aws_vpc.prod.id
+  cidr_block = "10.2.220.0/24"
+  availability_zone = "us-east-1c"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "dbsubnet3prod"
+  }
+}
+
+#5 Create NAT Gateway
+
+resource "aws_nat_gateway" "example1" {
+  subnet_id     = "10.2.1.0/24"
+
+  tags = {
+    Name = "gw NAT"
+  }
