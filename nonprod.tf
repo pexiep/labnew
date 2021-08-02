@@ -158,6 +158,6 @@ resource "aws_nat_gateway" "example" {
   tags = {
     Name = "gw NAT"
   }
-
+}
 
 
