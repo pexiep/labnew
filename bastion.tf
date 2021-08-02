@@ -79,7 +79,7 @@ resource "aws_subnet" "privatebastion2" {
   }
 }
 
-resource "aws_subnet" "publicbastion2" {
+resource "aws_subnet" "publicbastion3" {
   vpc_id     = aws_vpc.bastion.id
   cidr_block = "10.3.2.0/24"
   availability_zone = "us-east-1c"
@@ -109,3 +109,4 @@ resource "aws_nat_gateway" "example2" {
   tags = {
     Name = "gw NAT"
   }
+}
