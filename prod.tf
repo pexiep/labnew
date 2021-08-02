@@ -29,7 +29,7 @@ resource "aws_route_table" "publicprod" {
   }
 	
   tags = {
-    Name = "PublicRT"
+    Name = "PublicRT1"
   }
 }
 
