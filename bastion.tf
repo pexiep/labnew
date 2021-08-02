@@ -101,12 +101,32 @@ resource "aws_subnet" "privatebastion3" {
   }
 }
 
-#5 Create NAT Gateway
+#5 Create association
 
-resource "aws_nat_gateway" "example2" {
-  subnet_id     = "10.3.2.0/24"
+resource "aws_route_table_association" "a2" { 
+  subnet_id      = aws_subnet.publicbastion1.id 
+  route_table_id = aws_route_table.public2.id 
+} 
 
-  tags = {
-    Name = "gw NAT"
-  }
-}
+
+resource "aws_route_table_association" "b2" { 
+  subnet_id      = aws_subnet.publicbastion2.id 
+  route_table_id = aws_route_table.public2.id 
+} 
+
+
+resource "aws_route_table_association" "c2" { 
+  subnet_id      = aws_subnet.publicbastion3.id 
+  route_table_id = aws_route_table.public2.id 
+} 
+
+#6 Create NAT Gateway
+
+resource "aws_eip" "nat2" { 
+  vpc      = true 
+} 
+ 
+resource "aws_nat_gateway" "ngw2" { 
+  allocation_id = aws_eip.nat2.id 
+  subnet_id = aws_subnet.publicbastion3.id 
+} 
