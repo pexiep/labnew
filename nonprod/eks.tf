@@ -32,7 +32,7 @@ resource "aws_eks_cluster" "aws_eks" {
   role_arn = aws_iam_role.eks_cluster.arn
 
   vpc_config {
-    subnet_ids = aws_subnet.privatesubnet2.id
+    subnet_ids =  [aws_subnet.privatesubnet2.id, aws_subnet.privatesubnet2prod.id]
   }
 
   tags = {
@@ -78,12 +78,12 @@ resource "aws_eks_node_group" "node" {
   cluster_name    = aws_eks_cluster.aws_eks.name
   node_group_name = "node_test"
   node_role_arn   = aws_iam_role.eks_nodes.arn
-  subnet_ids      = ["10.1.10.0/24", "10.1.11.0/24", "10.1.22.0/24"]
+  subnet_ids      = [aws_subnet.privatesubnet2.id, aws_subnet.privatesubnet2prod.id]
 
   scaling_config {
     desired_size = 3
     max_size     = 3
-    min_size     = 3
+    min_size     = 1
   }
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
