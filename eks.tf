@@ -32,7 +32,7 @@ resource "aws_eks_cluster" "aws_eks" {
   role_arn = aws_iam_role.eks_cluster.arn
 
   vpc_config {
-    subnet_ids =  [aws_subnet.privatesubnet2.id, aws_subnet.privatesubnet1prod.id]
+    subnet_ids =  [aws_subnet.privatesubnet1.id, aws_subnet.privatesubnet2.id, aws_subnet.privatesubnet3.id]
   }
 
   tags = {
@@ -78,7 +78,7 @@ resource "aws_eks_node_group" "node" {
   cluster_name    = aws_eks_cluster.aws_eks.name
   node_group_name = "node_test"
   node_role_arn   = aws_iam_role.eks_nodes.arn
-  subnet_ids      = [aws_subnet.privatesubnet2.id, aws_subnet.privatesubnet1prod.id]
+  subnet_ids      = [aws_subnet.privatesubnet1.id, aws_subnet.privatesubnet2.id, aws_subnet.privatesubnet3.id]
 
   scaling_config {
     desired_size = 3
