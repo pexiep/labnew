@@ -20,6 +20,12 @@ resource "aws_vpc" "nonprod" {
   cidr_block       = "10.1.0.0/16"
   instance_tenancy = "default"
 
+  # Required for EKS. Enable/disable DNS support in the VPC.
+  enable_dns_support = true
+
+  # Required for EKS. Enable/disable DNS hostnames in the VPC.
+  enable_dns_hostnames = true
+
   tags = {
     Name = "nonprodVPC"
   }
