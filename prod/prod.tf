@@ -3,6 +3,12 @@
 resource "aws_vpc" "prod" {
   cidr_block       = "10.2.0.0/16"
   instance_tenancy = "default"
+	
+# Required for EKS. Enable/disable DNS support in the VPC.
+  enable_dns_support = true
+
+  # Required for EKS. Enable/disable DNS hostnames in the VPC.
+  enable_dns_hostnames = true
 
   tags = {
     Name = "prodVPC"
@@ -42,7 +48,7 @@ resource "aws_subnet" "publicsubnet1prod" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "PublicSubnet1prod"
+    Name = "publicsubnet1prod"
   }
 }
 
@@ -53,7 +59,7 @@ resource "aws_subnet" "privatesubnet1prod" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "PrivateSubnet1prod"
+    Name = "privatesubnet1prod"
   }
 }
 
@@ -64,7 +70,7 @@ resource "aws_subnet" "dbsubnet1prod" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "DBSubnet1prod"
+    Name = "dbsubnet1prod"
   }
 }
 
@@ -75,7 +81,7 @@ resource "aws_subnet" "publicsubnet2prod" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "PublicSubnet2prod"
+    Name = "publicsubnet2prod"
   }
 }
 
@@ -108,7 +114,7 @@ resource "aws_subnet" "publicsubnet3prod" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "PublicSubnet3prod"
+    Name = "publicsubnet3prod"
   }
 }
 
