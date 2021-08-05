@@ -58,7 +58,7 @@ resource "aws_subnet" "publicsubnet1" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "PublicSubnet1"
+    Name = "publicsubnet1"
     "kubernetes.io/cluster/eks" = "shared"
   }
 }
@@ -70,7 +70,7 @@ resource "aws_subnet" "privatesubnet1" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "PrivateSubnet1"
+    Name = "privatesubnet1"
     "kubernetes.io/cluster/eks" = "shared"
   }
 }
@@ -82,7 +82,7 @@ resource "aws_subnet" "dbsubnet1" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "DBSubnet1"
+    Name = "dbsubnet1"
   }
 }
 
@@ -93,7 +93,7 @@ resource "aws_subnet" "publicsubnet2" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "PublicSubnet2"
+    Name = "publicsubnet2"
     "kubernetes.io/cluster/eks" = "shared"
   }
 }
@@ -128,7 +128,7 @@ resource "aws_subnet" "publicsubnet3" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "PublicSubnet3"
+    Name = "publicsubnet3"
     "kubernetes.io/cluster/eks" = "shared"
   }
 }
