@@ -59,6 +59,7 @@ resource "aws_subnet" "publicsubnet1" {
 
   tags = {
     Name = "PublicSubnet1"
+    "kubernetes.io/cluster/eks" = "shared"
   }
 }
 
@@ -70,6 +71,7 @@ resource "aws_subnet" "privatesubnet1" {
 
   tags = {
     Name = "PrivateSubnet1"
+    "kubernetes.io/cluster/eks" = "shared"
   }
 }
 
@@ -92,6 +94,7 @@ resource "aws_subnet" "publicsubnet2" {
 
   tags = {
     Name = "PublicSubnet2"
+    "kubernetes.io/cluster/eks" = "shared"
   }
 }
 
@@ -103,6 +106,7 @@ resource "aws_subnet" "privatesubnet2" {
 
   tags = {
     Name = "privatesubnet2"
+    "kubernetes.io/cluster/eks" = "shared"
   }
 }
 
@@ -125,6 +129,7 @@ resource "aws_subnet" "publicsubnet3" {
 
   tags = {
     Name = "PublicSubnet3"
+    "kubernetes.io/cluster/eks" = "shared"
   }
 }
 
@@ -136,6 +141,7 @@ resource "aws_subnet" "privatesubnet3" {
 
   tags = {
     Name = "privatesubnet3"
+    "kubernetes.io/cluster/eks" = "shared"
   }
 }
 
