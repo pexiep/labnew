@@ -87,7 +87,7 @@ resource "aws_eks_node_group" "node" {
   scaling_config {
     desired_size = 3
     max_size     = 3
-    min_size     = 1
+    min_size     = 3
   }
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
