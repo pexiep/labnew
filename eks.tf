@@ -33,6 +33,11 @@ resource "aws_eks_cluster" "aws_eks" {
 
   vpc_config {
     subnet_ids =  [aws_subnet.privatesubnet1.id, aws_subnet.privatesubnet2.id, aws_subnet.privatesubnet3.id, aws_subnet.publicsubnet1.id, aws_subnet.publicsubnet2.id, aws_subnet.publicsubnet3.id]
+  # Indicates whether or not the Amazon EKS private API server endpoint is enabled
+    endpoint_private_access = false
+
+    # Indicates whether or not the Amazon EKS public API server endpoint is enabled
+    endpoint_public_access = true
   }
 
   tags = {
