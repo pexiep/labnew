@@ -171,7 +171,9 @@ resource "aws_eip" "one" {
   associate_with_private_ip = "10.3.10.5"
 }
 
-#8 - Create EC2 for 3 bastion host
+#8 - Create EC2 for 3 bastion host create launch template and auto scaling after that
+
+
 
 resource "aws_instance" "web-server-instance" {
     ami = "ami-09e67e426f25ce0d7"
